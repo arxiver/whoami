@@ -3,6 +3,7 @@ import os
 import cv2
 from preprocessing import preprocessing
 from featureExtraction import extractLBP
+from sklearn.neighbors import KNeighborsClassifier
 
 import datetime
 
@@ -99,22 +100,26 @@ class i_o():
 #                START THE PIPELINE                            
 ######################################################
     def startPipeline(self):
+        knn = KNeighborsClassifier(n_neighbors=1) # tune n_neighbors 
         Start = datetime.datetime.now()
         # The features of the labled data
         for i in self.images:
-            featuresList = []
+            # featuresList = []
             for j in i:
-                preProcessing = None #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
-                features = None # Module => FS, inputs => pre-processed image
-                featuresList.append(features) 
-            self.featuresLabled.append(featuresList)
+                preProcessing, _ = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
+                features = extractLBP(preProcessing) # Module => FS, inputs => pre-processed image
+                # featuresList.append(features) 
+                self.featuresLabled.append(features)
 
+        Ytrain = [self.writers[0],self.writers[0],self.writers[1],self.writers[1],self.writers[2],self.writers[2]] 
+        knn.fit(self.featuresLabled,Ytrain) 
         for i in self.tests:
-            preProcessing = None # Module => pre-processing, inputs => path of image 
-            features = None # Module => FS, inputs => pre-processed image
+            preProcessing,_ = preprocessing(i) # Module => pre-processing, inputs => path of image 
+            features = extractLBP(preProcessing) # Module => FS, inputs => pre-processed image
             self.featuresTest.append(features)
 
-        output = []   # Module => K-nn, inputs => self.featuresLabled, self.featuresTest, self.writers
+        
+        output = knn.predict(self.featuresTest)   # Module => K-nn, inputs => self.featuresLabled, self.featuresTest, self.writers
                         # output => array of expected writers
                         # Now we assume that the output will be only one element and the test will be only one elment
 
