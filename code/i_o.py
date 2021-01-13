@@ -2,6 +2,7 @@
 import os
 import cv2
 import preprocessing
+import featureExtraction
 import datetime
 
 class i_o():
