@@ -1,8 +1,9 @@
 #!/home/sofyan/anaconda3/bin/python3
 import os
 import cv2
-import preprocessing
-import featureExtraction
+from preprocessing import preprocessing
+from featureExtraction import extractLBP
+
 import datetime
 
 class i_o():
