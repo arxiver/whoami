@@ -101,7 +101,8 @@ class gData():
             for j in self.dic[i]:
                 imageCount+=1
                 if(writerCount == randomTest and not takeATest):
-                    copyfile(os.path.join(self.inputPath,self.dic[i][2]+".png"),os.path.join(path,self.dic[i][2]+".png"))
+                    randImage = random.randint(2,len(self.dic[i])-1) # random image from third image to last image
+                    copyfile(os.path.join(self.inputPath,self.dic[i][randImage]+".png"),os.path.join(path,self.dic[i][randImage]+".png"))
                     self.expectedFile.write(i+'\n') 
                     takeATest = 1
                 if(imageCount > 2):

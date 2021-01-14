@@ -26,7 +26,7 @@ def preprocessing(img):
     # cv2.imwrite('binaryImg2.png',binaryImg)
 
     #remove noise by anding imgblur and binaryImg
-    img[binaryImg==255]=255
+    # img[binaryImg==255]=255
 
     #get contours
     contours,_ = cv2.findContours(binaryImg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -78,7 +78,7 @@ def preprocessing(img):
         binaryImg=binaryImg[Ymin:Ymax,Xmin:Xmax]
 
     #return cropped img,cropped binaryImg  
-    # cv2.imwrite('img.png',img) 
+    cv2.imwrite('img.png',img) 
     return img,binaryImg
 
 

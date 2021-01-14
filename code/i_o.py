@@ -4,6 +4,7 @@ import cv2
 from preprocessing import preprocessing
 from featureExtraction import extractLBP
 from sklearn.neighbors import KNeighborsClassifier
+import numpy as np
 
 import datetime
 
@@ -125,13 +126,13 @@ class i_o():
 #                START THE PIPELINE                            
 ######################################################
     def startPipeline(self):
-        knn = KNeighborsClassifier(n_neighbors=1) # tune n_neighbors 
+        knn = KNeighborsClassifier(n_neighbors=1,weights="distance") # tune n_neighbors 
         Start = datetime.datetime.now()
         # The features of the labled data
         for i in self.images:
             # featuresList = []
             for j in i:
-                _, preProcessing = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
+                preProcessing, _ = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
                 features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
                 # featuresList.append(features) 
                 self.featuresLabled.append(features)
@@ -141,7 +142,7 @@ class i_o():
 
         for i in self.tests:
             Start_pre = datetime.datetime.now()
-            _, preProcessing = preprocessing(i) # Module => pre-processing, inputs => path of image 
+            preProcessing, _ = preprocessing(i) # Module => pre-processing, inputs => path of image 
             End_pre = datetime.datetime.now()
 
             Start_features = datetime.datetime.now()
@@ -232,8 +233,33 @@ class i_o():
 if __name__ == "__main__":
     os.chdir("../")
 
-    
-    obj = i_o(10)
-    obj.readFiles()
+    n = int(input("enter the number of tests you want to run (enter -1 for all tests)"))
+    if(n == -1):
+        n = 10000
+
+    # obj = i_o(n)
+    # obj.readFiles()
+
+    img131 = cv2.imread("data/009/013/a01-053.png",0)
+    img132 = cv2.imread("data/009/013/a01-058.png",0)
+
+    img01 = cv2.imread("data/009/000/a01-000u.png",0)
+    img02 = cv2.imread("data/009/000/a01-003u.png",0)
+
+    img131,_ = preprocessing(img131)
+    img132,_ = preprocessing(img132)
+
+    features = extractLBP(img131) / (img131.shape[0] * img131.shape[1]) # Module => FS, inputs => pre-processed image
+    features1 = extractLBP(img132) / (img132.shape[0] * img132.shape[1]) # Module => FS, inputs => pre-processed image
+
+    print(np.sum(np.abs(features-features1)))
+
+
+    features = extractLBP(img01) / (img01.shape[0] * img01.shape[1]) # Module => FS, inputs => pre-processed image
+    features1 = extractLBP(img02) / (img02.shape[0] * img02.shape[1]) # Module => FS, inputs => pre-processed image
+
+    print(np.sum(np.abs(features-features1)))
+
+
     
     
