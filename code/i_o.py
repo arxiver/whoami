@@ -5,6 +5,7 @@ from preprocessing import preprocessing
 from featureExtraction import extractLBP
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
+from threading import Thread 
 
 import datetime
 
@@ -19,6 +20,7 @@ class i_o():
         self.tests = []
         self.testsPrint = []
         self.writers = []
+        self.yTrain = []
         self.featuresLabled = []
         self.featuresTest = []
 
@@ -54,6 +56,7 @@ class i_o():
         self.tests = []
         self.testsPrint = []
         self.writers = []
+        self.yTrain = []
         self.featuresLabled = []
         self.featuresTest = []
 
@@ -125,42 +128,102 @@ class i_o():
 ######################################################
 #                START THE PIPELINE                            
 ######################################################
-    def startPipeline(self):
-        knn = KNeighborsClassifier(n_neighbors=1,weights="distance") # tune n_neighbors 
-        Start = datetime.datetime.now()
-        # The features of the labled data
-        for i in self.images:
-            # featuresList = []
-            for j in i:
-                preProcessing, _ = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
-                features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
-                # featuresList.append(features) 
-                self.featuresLabled.append(features)
+    # def startPipeline(self):
+    #     knn = KNeighborsClassifier(n_neighbors=1,weights="distance") # tune n_neighbors 
+    #     Start = datetime.datetime.now()
+    #     # The features of the labled data
+    #     for i in self.images:
+    #         # featuresList = []
+    #         for j in i:
+    #             preProcessing, _ = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
+    #             features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
+    #             # featuresList.append(features) 
+    #             self.featuresLabled.append(features)
 
-        Ytrain = [self.writers[0],self.writers[0],self.writers[1],self.writers[1],self.writers[2],self.writers[2]] 
-        knn.fit(self.featuresLabled,Ytrain) 
+    #     Ytrain = [self.writers[0],self.writers[0],self.writers[1],self.writers[1],self.writers[2],self.writers[2]] 
+    #     knn.fit(self.featuresLabled,Ytrain) 
 
-        for i in self.tests:
-            Start_pre = datetime.datetime.now()
-            preProcessing, _ = preprocessing(i) # Module => pre-processing, inputs => path of image 
-            End_pre = datetime.datetime.now()
+    #     for i in self.tests:
+    #         Start_pre = datetime.datetime.now()
+    #         preProcessing, _ = preprocessing(i) # Module => pre-processing, inputs => path of image 
+    #         End_pre = datetime.datetime.now()
 
-            Start_features = datetime.datetime.now()
-            features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
-            End_features = datetime.datetime.now()
-            self.featuresTest.append(features)
+    #         Start_features = datetime.datetime.now()
+    #         features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
+    #         End_features = datetime.datetime.now()
+    #         self.featuresTest.append(features)
 
         
-        output = knn.predict(self.featuresTest)   # Module => K-nn, inputs => self.featuresLabled, self.featuresTest, self.writers
-                        # output => array of expected writers
-                        # Now we assume that the output will be only one element and the test will be only one elment
+    #     output = knn.predict(self.featuresTest)   # Module => K-nn, inputs => self.featuresLabled, self.featuresTest, self.writers
+    #                     # output => array of expected writers
+    #                     # Now we assume that the output will be only one element and the test will be only one elment
 
 
-        print("pre: ",(End_pre-Start_pre).total_seconds())
-        print("features: ",(End_features-Start_features).total_seconds())
+    #     print("pre: ",(End_pre-Start_pre).total_seconds())
+    #     print("features: ",(End_features-Start_features).total_seconds())
+    #     End = datetime.datetime.now()
+    #     self.output.extend(output)
+    #     self.timers.append(str((End-Start).total_seconds()))
+
+######################################################
+#                START THE PIPELINE                            
+######################################################
+    def startPipeline(self):
+        Start = datetime.datetime.now()
+        
+
+        thread1 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][0], self.writers[0],)) 
+        thread2 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][1], self.writers[0],))  
+        thread3 = Thread(target = self.preprocessingAndFeatures, args = (self.images[1][0], self.writers[1],))  
+        thread4 = Thread(target = self.preprocessingAndFeatures, args = (self.images[1][1], self.writers[1],))  
+        thread5 = Thread(target = self.preprocessingAndFeatures, args = (self.images[2][0], self.writers[2],))  
+        thread6 = Thread(target = self.preprocessingAndFeatures, args = (self.images[2][1], self.writers[2],))  
+        thread7 = Thread(target = self.preprocessingAndFeatures, args = (self.tests[0],None,))
+
+
+        thread1.start()  
+        thread2.start()  
+        thread3.start()  
+        thread4.start()  
+        thread5.start()  
+        thread6.start()  
+        thread7.start()
+
+        thread1.join()  
+        thread2.join()  
+        thread3.join()  
+        thread4.join()  
+        thread5.join()  
+        thread6.join()  
+        thread7.join()
+
+        output = self.knn()
+
+
         End = datetime.datetime.now()
         self.output.extend(output)
         self.timers.append(str((End-Start).total_seconds()))
+
+######################################################
+#        START THE PREPROCESSING AND FEATURES                            
+######################################################
+    def preprocessingAndFeatures(self,img,writer):
+        preProcessing, _ = preprocessing(img)
+        features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1])
+
+        if writer is not None:
+            self.featuresLabled.append(features)
+            self.yTrain.append(writer)
+        else:
+            self.featuresTest.append(features)
+
+######################################################
+#                       KNN                            
+######################################################
+    def knn(self):
+        knn = KNeighborsClassifier(n_neighbors=1,weights="distance") 
+        knn.fit(self.featuresLabled,self.yTrain) 
+        return knn.predict(self.featuresTest)   # Module => K-nn, inputs => self.featuresLabled, self.featuresTest, self.writers
 ######################################################
 #               GET EXPECTED OUTPUT  
 ######################################################
