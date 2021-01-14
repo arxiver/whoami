@@ -192,6 +192,9 @@ class i_o():
         for x in self.timers:
             timerSum += float(x)
         print("The average time is:",timerSum/len(self.timers))
+
+        self.fOutput.write("The accuracy is: "+str(accuracy)+'\n')
+        self.fTimer.write("The average time is: "+str(timerSum/len(self.timers))+'\n')
 ######################################################
 #                WRITE THE OUTPUT  
 ######################################################
