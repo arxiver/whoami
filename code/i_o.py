@@ -131,7 +131,7 @@ class i_o():
         for i in self.images:
             # featuresList = []
             for j in i:
-                preProcessing,_ = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
+                _, preProcessing = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
                 features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
                 # featuresList.append(features) 
                 self.featuresLabled.append(features)
@@ -141,7 +141,7 @@ class i_o():
 
         for i in self.tests:
             Start_pre = datetime.datetime.now()
-            preProcessing,_ = preprocessing(i) # Module => pre-processing, inputs => path of image 
+            _, preProcessing = preprocessing(i) # Module => pre-processing, inputs => path of image 
             End_pre = datetime.datetime.now()
 
             Start_features = datetime.datetime.now()
@@ -155,8 +155,8 @@ class i_o():
                         # Now we assume that the output will be only one element and the test will be only one elment
 
 
-        # print("pre: ",(End_pre-Start_pre).total_seconds())
-        # print("features: ",(End_features-Start_features).total_seconds())
+        print("pre: ",(End_pre-Start_pre).total_seconds())
+        print("features: ",(End_features-Start_features).total_seconds())
         End = datetime.datetime.now()
         self.output.extend(output)
         self.timers.append(str((End-Start).total_seconds()))
@@ -187,7 +187,10 @@ class i_o():
             print("Can't calculate the accuracy, the output list is empty")
 
         print("The accuracy is:",accuracy,"%")
-        print("The average time is:",sum(int(self.timers))/len(self.timers))
+        timerSum = 0
+        for x in self.timers:
+            timerSum += float(x)
+        print("The average time is:",timerSum/len(self.timers))
 ######################################################
 #                WRITE THE OUTPUT  
 ######################################################
@@ -229,7 +232,8 @@ class i_o():
 if __name__ == "__main__":
     os.chdir("../")
 
-    obj = i_o(1000)
+    
+    obj = i_o(10)
     obj.readFiles()
     
     

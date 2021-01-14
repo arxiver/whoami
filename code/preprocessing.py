@@ -14,7 +14,7 @@ import numpy as np
 def preprocessing(img):
 
     #crop noise on borders
-    img= img[int(img.shape[0]*0.12):int(img.shape[0]*0.88),int(img.shape[1]*0.04):int(img.shape[0]*0.96)]
+    img= img[int(img.shape[0]*0.10):int(img.shape[0]*0.90),int(img.shape[1]*0.04):int(img.shape[0]*0.96)]
 
 
 
@@ -23,7 +23,7 @@ def preprocessing(img):
         
     #black and white 
     binaryImg = ((img > 200)*255).astype('uint8')   
-    cv2.imwrite('binaryImg2.png',binaryImg)
+    # cv2.imwrite('binaryImg2.png',binaryImg)
 
     #remove noise by anding imgblur and binaryImg
     img[binaryImg==255]=255
@@ -56,14 +56,11 @@ def preprocessing(img):
                 else:
                     Ymax = min(Ymax,int(y))
     
-    
-    
-    
     Ymin2 = Ymax
     Ymax2 = Ymin
     
     #remove white borders
-    for contour in contours:
+    for contour in newContours:
             x, y, w, h = cv2.boundingRect(contour)
             if y <= (Ymax-Ymin)*0.5: 
                 if  y < Ymin2 and y>Ymin:
@@ -81,6 +78,7 @@ def preprocessing(img):
         binaryImg=binaryImg[Ymin:Ymax,Xmin:Xmax]
 
     #return cropped img,cropped binaryImg  
+    # cv2.imwrite('img.png',img) 
     return img,binaryImg
 
 
