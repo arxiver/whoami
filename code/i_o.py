@@ -14,21 +14,35 @@ class i_o():
 ######################################################
     def __init__(self, n):
         self.images = []
-        self.writers = []
+        self.imagesPrint = []
+        self.tests = []
         self.testsPrint = []
+        self.writers = []
         self.featuresLabled = []
         self.featuresTest = []
-        self.tests = []
+
+        self.NumOfRuns=n
+
         self.expected = []
         self.output = []
         self.timers = []
-        self.imagesPrint = []
-        self.accuracy = 0
-        self.NumOfRuns=n
-        self.path = "data"
+
+        # pathes
+        self.inputPath = "data"
+        self.outputPath = "output/output.txt"
+        self.timerPath = "output/timers.txt"
         self.expectedPath = "output/expected.txt"
+
+        # files 
+        self.fOutput = open(self.outputPath, 'w')
+        self.fTimer = open(self.timerPath, 'w')
+
         self.getExpected()
 
+
+    def __del__(self):
+        self.fOutput.close()
+        self.fTimer.close()
 
 ######################################################
 #                       RE-INIT                            
@@ -36,15 +50,11 @@ class i_o():
     def reinitialize(self):
         self.images = []
         self.imagesPrint = []
+        self.tests = []
+        self.testsPrint = []
         self.writers = []
         self.featuresLabled = []
         self.featuresTest = []
-        self.tests = []
-        self.testsPrint = []
-        self.accuracy = 0
-        
-
-    def __del__(self):
 
     
 
@@ -53,35 +63,43 @@ class i_o():
 ######################################################
     def readFiles(self):
         count = 0
-        for test in os.listdir(self.path):
+        ######################
+        l = os.listdir(self.inputPath)
+        l.sort()
+        # print(l)
+        # exit()
+        # print(os.listdir(self.inputPath))
+        # exit()
+        ####################33
+        # for test in os.listdir(self.inputPath):
+        for test in l:
             if count == self.NumOfRuns:
                 break
             count+=1
             
-            for writer in os.listdir(os.path.join(self.path, test)):
+            for writer in os.listdir(os.path.join(self.inputPath, test)):
                 writerImages = []
                 writerImagesPrint = []
                 if "." in writer:
-                    self.tests.append(os.path.join(self.path, test,writer))
-                    self.testsPrint.append(os.path.join(self.path, test,writer))
+                    self.tests.append(os.path.join(self.inputPath, test,writer))
+                    self.testsPrint.append(os.path.join(self.inputPath, test,writer))
                 else:
-                    for image in os.listdir(os.path.join(self.path, test,writer)):
-                        writerImages.append(os.path.join(self.path, test,writer,image))
-                        writerImagesPrint.append(os.path.join(self.path, test,writer,image))
+                    for image in os.listdir(os.path.join(self.inputPath, test,writer)):
+                        writerImages.append(os.path.join(self.inputPath, test,writer,image))
+                        writerImagesPrint.append(os.path.join(self.inputPath, test,writer,image))
                     self.images.append(writerImages)
                     self.imagesPrint.append(writerImagesPrint)
                     self.writers.append(int(writer))        # the name of the directory must be integer
 
-            # self.test()
-            # exit()
-
             self.readImages()
             self.startPipeline()
-            self.calculateAccuracy()
             self.writeOutput()
             self.Print()
             self.reinitialize()
             
+        self.calculateAccuracy()
+
+
 
         # self.images   => [['data/01/1/1.png', 'data/01/1/2.png'], ['data/01/2/1.png', 'data/01/2/2.png'], ['data/01/3/1.png', 'data/01/3/2.png']]
         # self.writers  => [1, 2, 3]
@@ -137,8 +155,8 @@ class i_o():
                         # Now we assume that the output will be only one element and the test will be only one elment
 
 
-        print("pre: ",(End_pre-Start_pre).total_seconds())
-        print("features: ",(End_features-Start_features).total_seconds())
+        # print("pre: ",(End_pre-Start_pre).total_seconds())
+        # print("features: ",(End_features-Start_features).total_seconds())
         End = datetime.datetime.now()
         self.output.extend(output)
         self.timers.append(str((End-Start).total_seconds()))
@@ -149,10 +167,6 @@ class i_o():
         with open(self.expectedPath) as file_in:
             for line in file_in:
                 self.expected.append(int(line.rstrip()))
-
-        print(self.expected)
-
-
 ######################################################
 #               CALCULATE THE ACCURACY                            
 ######################################################
@@ -168,20 +182,18 @@ class i_o():
             if(self.expected[i] == self.output[i]):
                 count+=1
         try:
-            self.accuracy = count/len(self.output)
+            accuracy = (count/len(self.output))*100
         except ZeroDivisionError:
             print("Can't calculate the accuracy, the output list is empty")
 
-
+        print("The accuracy is:",accuracy,"%")
+        print("The average time is:",sum(int(self.timers))/len(self.timers))
 ######################################################
 #                WRITE THE OUTPUT  
 ######################################################
-    def writeOutput(self):
-        fOutput = open('output/output.txt', 'w')
-        fTimer = open('output/timers.txt', 'w')
-        fOutput.writelines(str(self.output)) 
-        fTimer.writelines(str(self.timers)) 
-
+    def writeOutput(self):        
+        self.fOutput.write(str(self.output[len(self.output)-1])+'\n') 
+        self.fTimer.write(str(self.timers[len(self.timers)-1])+'\n') 
 
 ######################################################
 #                       PRINT         
@@ -192,11 +204,11 @@ class i_o():
     def Print(self):
         if(len(self.tests) == 0 or len(self.output) == 0):
             raise Exception("The lenght of tests or output is zero, wrong")
-        # for i in self.imagesPrint:
-        #     for j in i:
-        #         print("processing ",j,"....")
-
-        print("Identify the writer of ",self.testsPrint[0]," => ",self.output[len(self.output)-1])
+        
+        print("Identify the writer of ",self.testsPrint[0])
+        print("The expected output is: ",self.expected[len(self.output)-1])
+        print("The ectual output is: ",self.output[len(self.output)-1])
+        print("=========================================================")
 
 ######################################################
 #                 TEST FUNCTION  
@@ -217,7 +229,7 @@ class i_o():
 if __name__ == "__main__":
     os.chdir("../")
 
-    obj = i_o(19)
+    obj = i_o(1000)
     obj.readFiles()
     
     
