@@ -76,7 +76,8 @@ def preprocessing(img):
     elif(Ymin<Ymax):
         img = img[Ymin:Ymax,Xmin:Xmax]
         binaryImg=binaryImg[Ymin:Ymax,Xmin:Xmax]
-        
+    
+    
     kernel = np.ones((1,int(binaryImg.shape[1])),np.uint8)
 
 
@@ -90,7 +91,7 @@ def preprocessing(img):
     
     contours,_ = cv2.findContours(binaryImg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     numberOflines=len(contours)-1
-    print(numberOflines)
+    # print(numberOflines)
     lines=[]
     for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
