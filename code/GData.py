@@ -12,19 +12,29 @@ class gData():
     def __init__(self, n):
         self.numOfTests=n
         self.form = {}
-        self.dec = {}
-        self.directoryName = "data2"
+        self.dic = {}
+        self.outputPath = "data2"
+        self.inputPath = "/home/sofyan/Downloads/Dataset"
+        self.formText = "forms.txt"
+        self.expectedPath = "output/expected.txt"
         self.currentTest = 0
-        self.path = "iam_database/forms.txt"
-        self.f = open('output/expected.txt', 'w')
+
+        self.expectedFile = open(self.expectedPath, 'w')
+
+        if(os.path.exists(self.outputPath)):
+            shutil.rmtree(self.outputPath)
+        os.mkdir(self.outputPath)
 
 
+######################################################
+#                   READ ALL IMAGES                            
+######################################################
     def formTxt(self):
-        with open(self.path) as file_in:
+        with open(os.path.join(self.inputPath,self.formText)) as file_in:
             for line in file_in:
-                if(line[0] == 'e'):
-                    break
                 if(line[0] != "#"):
+                    if(line[0] == 'e'):
+                        break
                     image = line.split(" ")[0]
                     writer = line.split(" ")[1]
                     if writer in self.form:
@@ -32,66 +42,56 @@ class gData():
                     else:
                         self.form[writer] = [image]
 
-        # count = -1
-        # for i in self.form:
-        #     count+=1
-        #     if count == 20:
-        #         break
-        #     print(i,": ",end=''),
-        #     for j in self.form[i]:
-        #         print(j," ",end=''),
 
-        #     print()
-        #     print("=================")
-
-        # exit()
-
-
-
+######################################################
+#               CREATE THE ARCHITECTURE                            
+######################################################
     def createStructure(self): 
-        if(os.path.exists(self.directoryName)):
-            shutil.rmtree(self.directoryName)
-        os.mkdir(self.directoryName)
+        
         for i in (self.form):
             if len(self.form[i]) > 2:
-                self.dec[i] = self.form[i]
-                if(len(self.dec) == 3):
+                self.dic[i] = self.form[i]
+                if(len(self.dic) == 3):
                     self.write()
                     self.currentTest+=1
 
 
+######################################################
+#                       WRITE                            
+######################################################
     def write(self):
         if(self.currentTest < 10):
-            path = self.directoryName+"/00"+str(self.currentTest)
+            path = self.outputPath+"/00"+str(self.currentTest)
         elif(self.currentTest < 100):
-            path = self.directoryName+"/0"+str(self.currentTest)
+            path = self.outputPath+"/0"+str(self.currentTest)
         elif(self.currentTest < 1000):
-            path = self.directoryName+"/"+str(self.currentTest)
+            path = self.outputPath+"/"+str(self.currentTest)
         else:
             raise Exception("The limit of tests is 1000")
 
 
-        test = random.randint(0,2)
+        randomTest = random.randint(0,2)
         os.mkdir(path)
-        count2 = -1
+        writerCount = -1 
         takeATest = 0
-        for i in self.dec:
-            count2+=1 # index of writer
-            if not (os.path.exists(path+"/"+i)):
-                os.mkdir(path+"/"+i)
-            count = 0
-            
-            for j in self.dec[i]:
-                count+=1
-                if(count2 == test and not takeATest):
-                    copyfile("/home/sofyan/Downloads/Dataset/"+self.dec[i][2]+".png",path+"/"+self.dec[i][2]+".png")
-                    self.f.write(i+'\n') 
+        for i in self.dic:
+            writerCount+=1
+            if (os.path.exists(os.path.join(path, i))):
+                shutil.rmtree(os.path.join(path, i))
+            os.mkdir(os.path.join(path, i))
+
+            imageCount = 0
+            for j in self.dic[i]:
+                imageCount+=1
+                if(writerCount == randomTest and not takeATest):
+                    copyfile(os.path.join(self.inputPath,self.dic[i][2]+".png"),os.path.join(path,self.dic[i][2]+".png"))
+                    self.expectedFile.write(i+'\n') 
                     takeATest = 1
-                if(count > 2):
+                if(imageCount > 2):
                     break
                 copyfile("/home/sofyan/Downloads/Dataset/"+j+".png",path+"/"+i+"/"+j+".png")
 
-        self.dec.clear()
+        self.dic.clear()
 
 ######################################################
 #                       MAIN                            
