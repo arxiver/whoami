@@ -26,3 +26,15 @@ def extractLBP(img):
     # 3 => 80 %
     # 1 => 85 %
 
+
+def extractLBPLines(lines): 
+    r = 3 
+    points = 8 
+    hist = [] 
+    shape = 0 
+    for x in lines: 
+        lbp_img = local_binary_pattern(x,points,r) 
+        a,_ = np.histogram(lbp_img,bins=256,range=(0,256)) 
+        shape=(np.shape(x)[0]*np.shape(x)[1]) 
+        hist.append(a/shape) 
+    return (hist) 

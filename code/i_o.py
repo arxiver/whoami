@@ -3,9 +3,11 @@ import os
 import cv2
 from preprocessing import preprocessing
 from featureExtraction import extractLBP
+from featureExtraction import extractLBPLines
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 from threading import Thread 
+from sklearn import svm
 
 import datetime
 
@@ -198,8 +200,6 @@ class i_o():
         thread7.join()
 
         output = self.knn()
-
-
         End = datetime.datetime.now()
         self.output.extend(output)
         self.timers.append(str((End-Start).total_seconds()))
@@ -208,22 +208,36 @@ class i_o():
 #        START THE PREPROCESSING AND FEATURES                            
 ######################################################
     def preprocessingAndFeatures(self,img,writer):
-        preProcessing, _ = preprocessing(img)
-        features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1])
+        preProcessing, lines = preprocessing(img)
+        # features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1])
+        features = extractLBPLines(lines)
 
+        writerList = [writer]*len(features)
         if writer is not None:
-            self.featuresLabled.append(features)
-            self.yTrain.append(writer)
+            self.featuresLabled.extend(features)
+            self.yTrain.extend(writerList)
         else:
-            self.featuresTest.append(features)
+            self.featuresTest.extend(features)
 
 ######################################################
 #                       KNN                            
 ######################################################
     def knn(self):
-        knn = KNeighborsClassifier(n_neighbors=1,weights="distance") 
+
+        # Average two features
+        # Xtrain = [] 
+        # Ytrain = [0,1,2] 
+        # Xtrain.append((featuresTest[0]+featuresTest[1]) / 2) 
+        # Xtrain.append((featuresTest[2]+featuresTest[3]) / 2) 
+        # Xtrain.append((featuresTest[4]+featuresTest[5]) / 2) 
+        knn = KNeighborsClassifier(n_neighbors=7,weights="distance") 
+
+        # SVM
+        # knn = svm.SVC(kernel='linear',gamma="auto") 
+        # knn = svm.SVC(kernel='poly',gamma="auto") 
         knn.fit(self.featuresLabled,self.yTrain) 
-        return knn.predict(self.featuresTest)   # Module => K-nn, inputs => self.featuresLabled, self.featuresTest, self.writers
+        ret = knn.predict(self.featuresTest)   # Module => K-nn, inputs => self.featuresLabled, self.featuresTest, self.writers
+        return [(int(np.argmax(np.bincount(ret))))]
 ######################################################
 #               GET EXPECTED OUTPUT  
 ######################################################
@@ -235,7 +249,7 @@ class i_o():
 #               CALCULATE THE ACCURACY                            
 ######################################################
     def calculateAccuracy(self):
-
+        
         if(len(self.expected) == 0):
             print("No expected output, no accuracy")
 
