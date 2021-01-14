@@ -233,33 +233,11 @@ class i_o():
 if __name__ == "__main__":
     os.chdir("../")
 
-    n = int(input("enter the number of tests you want to run (enter -1 for all tests)"))
+    n = int(input("enter the number of tests you want to run (enter -1 for all tests): "))
     if(n == -1):
         n = 10000
 
-    # obj = i_o(n)
-    # obj.readFiles()
+    obj = i_o(n)
+    obj.readFiles()
 
-    img131 = cv2.imread("data/009/013/a01-053.png",0)
-    img132 = cv2.imread("data/009/013/a01-058.png",0)
-
-    img01 = cv2.imread("data/009/000/a01-000u.png",0)
-    img02 = cv2.imread("data/009/000/a01-003u.png",0)
-
-    img131,_ = preprocessing(img131)
-    img132,_ = preprocessing(img132)
-
-    features = extractLBP(img131) / (img131.shape[0] * img131.shape[1]) # Module => FS, inputs => pre-processed image
-    features1 = extractLBP(img132) / (img132.shape[0] * img132.shape[1]) # Module => FS, inputs => pre-processed image
-
-    print(np.sum(np.abs(features-features1)))
-
-
-    features = extractLBP(img01) / (img01.shape[0] * img01.shape[1]) # Module => FS, inputs => pre-processed image
-    features1 = extractLBP(img02) / (img02.shape[0] * img02.shape[1]) # Module => FS, inputs => pre-processed image
-
-    print(np.sum(np.abs(features-features1)))
-
-
-    
     
