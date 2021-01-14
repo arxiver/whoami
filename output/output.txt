@@ -1,11 +1,6 @@
+16
 0
 13
 13
-25
-0
-37
-0
 13
-13
-61
-The accuracy is: 80.0
+The accuracy is: 100.0
