@@ -76,9 +76,29 @@ def preprocessing(img):
     elif(Ymin<Ymax):
         img = img[Ymin:Ymax,Xmin:Xmax]
         binaryImg=binaryImg[Ymin:Ymax,Xmin:Xmax]
+        
+    kernel = np.ones((1,int(binaryImg.shape[1])),np.uint8)
+
+
+    binaryImg = cv2.morphologyEx(binaryImg, cv2.MORPH_OPEN, kernel)
+    
+    
+    binaryImg[:,0:10]=255
+    binaryImg[0:10,:]=255
+    binaryImg[:,binaryImg.shape[1]-10:]=255
+    binaryImg[binaryImg.shape[0]-10:,:]=255
+    
+    contours,_ = cv2.findContours(binaryImg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    numberOflines=len(contours)-1
+    print(numberOflines)
+    lines=[]
+    for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            lines.append(img[y:y+h,x:x+w])
+    
 
     #return cropped img,cropped binaryImg  
-    return img,binaryImg
+    return img,lines
 
 
 
