@@ -15,6 +15,7 @@ class i_o():
     def __init__(self, n):
         self.images = []
         self.writers = []
+        self.testsPrint = []
         self.featuresLabled = []
         self.featuresTest = []
         self.tests = []
@@ -24,7 +25,8 @@ class i_o():
         self.imagesPrint = []
         self.accuracy = 0
         self.NumOfRuns=n
-        self.path = "data"
+        self.path = "data2"
+        
 
         self.getExpected()
 
@@ -39,6 +41,7 @@ class i_o():
         self.featuresLabled = []
         self.featuresTest = []
         self.tests = []
+        self.testsPrint = []
         self.accuracy = 0
     
 
@@ -57,6 +60,7 @@ class i_o():
                 writerImagesPrint = []
                 if "." in writer:
                     self.tests.append(os.path.join(self.path, test,writer))
+                    self.testsPrint.append(os.path.join(self.path, test,writer))
                 else:
                     for image in os.listdir(os.path.join(self.path, test,writer)):
                         writerImages.append(os.path.join(self.path, test,writer,image))
@@ -72,8 +76,8 @@ class i_o():
             self.startPipeline()
             self.calculateAccuracy()
             self.writeOutput()
-            self.reinitialize()
             self.Print()
+            self.reinitialize()
             
 
         # self.images   => [['data/01/1/1.png', 'data/01/1/2.png'], ['data/01/2/1.png', 'data/01/2/2.png'], ['data/01/3/1.png', 'data/01/3/2.png']]
@@ -106,16 +110,22 @@ class i_o():
         for i in self.images:
             # featuresList = []
             for j in i:
-                preProcessing, _ = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
-                features = extractLBP(preProcessing) # Module => FS, inputs => pre-processed image
+                preProcessing,_ = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
+                features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
                 # featuresList.append(features) 
                 self.featuresLabled.append(features)
 
         Ytrain = [self.writers[0],self.writers[0],self.writers[1],self.writers[1],self.writers[2],self.writers[2]] 
         knn.fit(self.featuresLabled,Ytrain) 
+
         for i in self.tests:
+            Start_pre = datetime.datetime.now()
             preProcessing,_ = preprocessing(i) # Module => pre-processing, inputs => path of image 
-            features = extractLBP(preProcessing) # Module => FS, inputs => pre-processed image
+            End_pre = datetime.datetime.now()
+
+            Start_features = datetime.datetime.now()
+            features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
+            End_features = datetime.datetime.now()
             self.featuresTest.append(features)
 
         
@@ -123,11 +133,12 @@ class i_o():
                         # output => array of expected writers
                         # Now we assume that the output will be only one element and the test will be only one elment
 
+
+        print("pre: ",(End_pre-Start_pre).total_seconds())
+        print("features: ",(End_features-Start_features).total_seconds())
         End = datetime.datetime.now()
         self.output.extend(output)
         self.timers.append(str((End-Start).total_seconds()))
-
-        # self.output => [writer_test_1, writer_test_2, writer_test_3, etc...]
 ######################################################
 #               GET EXPECTED OUTPUT  
 ######################################################
@@ -163,11 +174,10 @@ class i_o():
 #                WRITE THE OUTPUT  
 ######################################################
     def writeOutput(self):
-        f = open('output/output.txt', 'w') 
-        f.writelines(self.output) 
-
-        f = open('output/timers.txt', 'w') 
-        f.writelines(self.timers) 
+        fOutput = open('output/output.txt', 'w')
+        fTimer = open('output/timers.txt', 'w')
+        fOutput.writelines(str(self.output)) 
+        fTimer.writelines(str(self.timers)) 
 
 
 ######################################################
@@ -179,11 +189,11 @@ class i_o():
     def Print(self):
         if(len(self.tests) == 0 or len(self.output) == 0):
             raise Exception("The lenght of tests or output is zero, wrong")
-        for i in self.imagesPrint:
-            for j in i:
-                print("processing ",j,"....")
+        # for i in self.imagesPrint:
+        #     for j in i:
+        #         print("processing ",j,"....")
 
-        print("Identify the writer of ",self.tests[0]," => ",self.output[len(self.output-1)])
+        print("Identify the writer of ",self.testsPrint[0]," => ",self.output[len(self.output)-1])
 
 ######################################################
 #                 TEST FUNCTION  
@@ -204,7 +214,7 @@ class i_o():
 if __name__ == "__main__":
     os.chdir("../")
 
-    obj = i_o(1)
+    obj = i_o(19)
     obj.readFiles()
     
     

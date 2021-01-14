@@ -16,6 +16,7 @@ class gData():
         self.directoryName = "data2"
         self.currentTest = 0
         self.path = "iam_database/forms.txt"
+        self.f = open('output/expected.txt', 'w')
 
 
     def formTxt(self):
@@ -31,19 +32,19 @@ class gData():
                     else:
                         self.form[writer] = [image]
 
-        count = -1
-        for i in self.form:
-            count+=1
-            if count == 20:
-                break
-            print(i,": ",end=''),
-            for j in self.form[i]:
-                print(j," ",end=''),
+        # count = -1
+        # for i in self.form:
+        #     count+=1
+        #     if count == 20:
+        #         break
+        #     print(i,": ",end=''),
+        #     for j in self.form[i]:
+        #         print(j," ",end=''),
 
-            print()
-            print("=================")
+        #     print()
+        #     print("=================")
 
-        exit()
+        # exit()
 
 
 
@@ -73,16 +74,19 @@ class gData():
         test = random.randint(0,2)
         os.mkdir(path)
         count2 = -1
+        takeATest = 0
         for i in self.dec:
-            count2+=1
+            count2+=1 # index of writer
             if not (os.path.exists(path+"/"+i)):
                 os.mkdir(path+"/"+i)
             count = 0
             
             for j in self.dec[i]:
                 count+=1
-                if(count2 == test):
+                if(count2 == test and not takeATest):
                     copyfile("/home/sofyan/Downloads/Dataset/"+self.dec[i][2]+".png",path+"/"+self.dec[i][2]+".png")
+                    self.f.write(i+'\n') 
+                    takeATest = 1
                 if(count > 2):
                     break
                 copyfile("/home/sofyan/Downloads/Dataset/"+j+".png",path+"/"+i+"/"+j+".png")
