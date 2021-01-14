@@ -13,7 +13,7 @@ class gData():
         self.numOfTests=n
         self.form = {}
         self.dic = {}
-        self.outputPath = "data2"
+        self.outputPath = "data"
         self.inputPath = "/home/sofyan/Downloads/Dataset"
         self.formText = "forms.txt"
         self.expectedPath = "output/expected.txt"
@@ -24,6 +24,9 @@ class gData():
         if(os.path.exists(self.outputPath)):
             shutil.rmtree(self.outputPath)
         os.mkdir(self.outputPath)
+
+    def __del__(self):
+        self.expectedFile.close()
 
 
 ######################################################
@@ -42,18 +45,32 @@ class gData():
                     else:
                         self.form[writer] = [image]
 
-
+        file_in.close()
 ######################################################
 #               CREATE THE ARCHITECTURE                            
 ######################################################
     def createStructure(self): 
         
-        for i in (self.form):
-            if len(self.form[i]) > 2:
+        if(self.numOfTests == self.currentTest):
+            return True
+
+        if(len(self.dic) == 3):
+            self.write()
+            self.currentTest+=1
+            return False
+
+        for i in self.form:
+            if i not in self.dic and len(self.form[i]) > 2:
                 self.dic[i] = self.form[i]
-                if(len(self.dic) == 3):
-                    self.write()
-                    self.currentTest+=1
+                if self.createStructure() is True:
+                    return True
+
+                lastElement = None
+                for x in self.dic:
+                    lastElement = x
+                del self.dic[lastElement]
+
+        return False
 
 
 ######################################################
@@ -89,9 +106,9 @@ class gData():
                     takeATest = 1
                 if(imageCount > 2):
                     break
-                copyfile("/home/sofyan/Downloads/Dataset/"+j+".png",path+"/"+i+"/"+j+".png")
+                copyfile(os.path.join(self.inputPath,j+".png"),os.path.join(path,i,j+".png"))
 
-        self.dic.clear()
+        
 
 ######################################################
 #                       MAIN                            
@@ -99,7 +116,9 @@ class gData():
 if __name__ == "__main__":
     os.chdir("../")
 
-    obj = gData(0)
+    n = input("The number of tests (Can't be more than 100 tests): ")
+
+    obj = gData(int(n))
     obj.formTxt()
     obj.createStructure()
     

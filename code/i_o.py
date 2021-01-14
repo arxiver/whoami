@@ -25,9 +25,8 @@ class i_o():
         self.imagesPrint = []
         self.accuracy = 0
         self.NumOfRuns=n
-        self.path = "data2"
-        
-
+        self.path = "data"
+        self.expectedPath = "output/expected.txt"
         self.getExpected()
 
 
@@ -43,6 +42,10 @@ class i_o():
         self.tests = []
         self.testsPrint = []
         self.accuracy = 0
+        
+
+    def __del__(self):
+
     
 
 ######################################################
@@ -143,7 +146,7 @@ class i_o():
 #               GET EXPECTED OUTPUT  
 ######################################################
     def getExpected(self): 
-        with open("output/expected.txt") as file_in:
+        with open(self.expectedPath) as file_in:
             for line in file_in:
                 self.expected.append(int(line.rstrip()))
 
