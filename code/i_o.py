@@ -33,7 +33,7 @@ class i_o():
         self.timers = []
 
         # pathes
-        self.inputPath = "data"
+        self.inputPath = "/mnt/sda9/sda5/data"
         self.outputPath = "output/output.txt"
         self.timerPath = "output/timers.txt"
         self.expectedPath = "output/expected.txt"

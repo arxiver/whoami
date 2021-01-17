@@ -13,8 +13,8 @@ class gData():
         self.numOfTests=n
         self.form = {}
         self.dic = {}
-        self.outputPath = "data"
-        self.inputPath = "/home/sofyan/Downloads/Dataset"
+        self.outputPath = "/mnt/sda9/sda5/data"
+        self.inputPath = "Dataset"
         self.formText = "forms.txt"
         self.expectedPath = "output/expected.txt"
         self.currentTest = 0
