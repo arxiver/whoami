@@ -71,13 +71,13 @@ def extractLBP(img):
 def extractLBPLines(lines): 
     r = 3 
     points = 8 
-    hist = [] 
-    shape = 0 
-    for x in lines: 
+    hist = [implemented_lbp(x,r)/(np.shape(x)[0]*np.shape(x)[1]) for x in lines] 
+    #shape = 0 
+    #for x in lines: 
         #lbp_img = local_binary_pattern(x,points,r) 
         #a,_ = np.histogram(lbp_img,bins=256,range=(0,256)) 
-        a = implemented_lbp(x,r)
-        shape=(np.shape(x)[0]*np.shape(x)[1]) 
-        hist.append(a/shape) 
+        #a = implemented_lbp(x,r)
+        #shape=(np.shape(x)[0]*np.shape(x)[1]) 
+        #hist.append(a/shape) 
     return (hist) 
 
