@@ -171,33 +171,24 @@ class i_o():
 #                START THE PIPELINE                            
 ######################################################
     def startPipeline(self):
-        Start = datetime.datetime.now()
+        
         
 
-        thread1 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][0], self.writers[0],)) 
-        thread2 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][1], self.writers[0],))  
-        thread3 = Thread(target = self.preprocessingAndFeatures, args = (self.images[1][0], self.writers[1],))  
-        thread4 = Thread(target = self.preprocessingAndFeatures, args = (self.images[1][1], self.writers[1],))  
-        thread5 = Thread(target = self.preprocessingAndFeatures, args = (self.images[2][0], self.writers[2],))  
-        thread6 = Thread(target = self.preprocessingAndFeatures, args = (self.images[2][1], self.writers[2],))  
-        thread7 = Thread(target = self.preprocessingAndFeatures, args = (self.tests[0],None,))
+        thread1 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][0],self.images[0][1], self.writers[0],)) 
+		thread2 = Thread(target = self.preprocessingAndFeatures, args = (self.images[1][0],self.images[1][1], self.writers[0],)) 
+		thread3 = Thread(target = self.preprocessingAndFeatures, args = (self.images[2][0],self.images[2][1], self.writers[0],)) 
+        thread4 = Thread(target = self.preprocessingAndFeatures, args = (self.tests[0],None,None,))
 
-
+		Start = datetime.datetime.now()
         thread1.start()  
         thread2.start()  
         thread3.start()  
-        thread4.start()  
-        thread5.start()  
-        thread6.start()  
-        thread7.start()
+		thread4.start()
 
         thread1.join()  
         thread2.join()  
         thread3.join()  
-        thread4.join()  
-        thread5.join()  
-        thread6.join()  
-        thread7.join()
+		thread4.join()
 
         output = self.knn()
         End = datetime.datetime.now()
@@ -207,17 +198,21 @@ class i_o():
 ######################################################
 #        START THE PREPROCESSING AND FEATURES                            
 ######################################################
-    def preprocessingAndFeatures(self,img,writer):
-        preProcessing, lines = preprocessing(img)
-        # features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1])
-        features = extractLBPLines(lines)
-
-        writerList = [writer]*len(features)
-        if writer is not None:
-            self.featuresLabled.extend(features)
-            self.yTrain.extend(writerList)
-        else:
-            self.featuresTest.extend(features)
+    def preprocessingAndFeatures(self,img1,img2,writer):
+		if writer is not None:
+			lines = [preprocessing(img1)[1],preprocessing(img2)[1]]
+			# features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1])
+			lines[0].extend(lines[1])
+			features = extractLBPLines(lines[0])
+			writerList = [writer]
+			self.featuresLabled.extend(features)
+			self.yTrain.extend(writerList)
+		else:
+			lines = preprocessing(img1)[1]
+			# features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1])
+			features = extractLBPLines(lines)
+			writerList = [writer]
+			self.featuresTest.extend(features))
 
 ######################################################
 #                       KNN                            
@@ -230,7 +225,7 @@ class i_o():
         # Xtrain.append((featuresTest[0]+featuresTest[1]) / 2) 
         # Xtrain.append((featuresTest[2]+featuresTest[3]) / 2) 
         # Xtrain.append((featuresTest[4]+featuresTest[5]) / 2) 
-        knn = KNeighborsClassifier(n_neighbors=7,weights="distance") 
+        knn = KNeighborsClassifier(n_neighbors=1,weights="distance") 
 
         # SVM
         # knn = svm.SVC(kernel='linear',gamma="auto") 
