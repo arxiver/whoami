@@ -11,7 +11,7 @@ from sklearn import svm
 
 import datetime
 
-class i_o():
+class main():
 
 ######################################################
 #                       INIT                            
@@ -34,8 +34,8 @@ class i_o():
 
         # pathes
         self.inputPath = "/mnt/sda9/sda5/data"
-        self.outputPath = "output/output.txt"
-        self.timerPath = "output/timers.txt"
+        self.outputPath = "output/results.txt"
+        self.timerPath = "output/time.txt"
         self.expectedPath = "output/expected.txt"
 
         # files 
@@ -62,21 +62,20 @@ class i_o():
         self.featuresLabled = []
         self.featuresTest = []
 
-    
+    def sort(self,l):
+        for i in range(len(l)):
+            for j in range(len(l)):
+                if int(l[i]) < int(l[j]):
+                    l[i],l[j] = l[j],l[i]
+
+        return l
 
 ######################################################
 #                READ FILES (TEST BY TEST)                            
 ######################################################
     def readFiles(self):
         count = 0
-        ######################
-        l = os.listdir(self.inputPath)
-        l.sort()
-        # print(l)
-        # exit()
-        # print(os.listdir(self.inputPath))
-        # exit()
-        ####################33
+        l = self.sort(os.listdir(self.inputPath))
         # for test in os.listdir(self.inputPath):
         for test in l:
             if count == self.NumOfRuns:
@@ -202,7 +201,7 @@ class i_o():
         output = self.knn()
         End = datetime.datetime.now()
         self.output.extend(output)
-        self.timers.append(str((End-Start).total_seconds()))
+        self.timers.append(str(round((End-Start).total_seconds(),2)))
 
 ######################################################
 #        START THE PREPROCESSING AND FEATURES                            
@@ -242,19 +241,36 @@ class i_o():
 #               GET EXPECTED OUTPUT  
 ######################################################
     def getExpected(self): 
-        with open(self.expectedPath) as file_in:
-            for line in file_in:
-                self.expected.append(int(line.rstrip()))
+        try:
+            with open(self.expectedPath) as file_in:
+                for line in file_in:
+                    self.expected.append(int(line.rstrip()))
+        except:
+            print("There is no expected file, there is no accuracy calculated")
 ######################################################
 #               CALCULATE THE ACCURACY                            
 ######################################################
     def calculateAccuracy(self):
-        
+
+        timerSum = 0
+        for x in self.timers:
+            timerSum += float(x)
+
+
         if(len(self.expected) == 0):
             print("No expected output, no accuracy")
+            print("The average time is:",round(timerSum/len(self.timers),2)," sec")
+            exit()
 
         if(len(self.expected) < len(self.output)):
-            raise Exception("The number of expected output less than the actual number of output")
+            print("No accuracy cauculated, the number of expected output is less than the number of actual output")
+            print("The average time is:",round(timerSum/len(self.timers),2)," sec")
+            exit()
+
+        if(len(self.output) == 0):
+            print("There are no ouputs, something went wrong, try again")
+            exit()
+
         count = 0
         for i in range(len(self.output)):
             if(self.expected[i] == self.output[i]):
@@ -264,14 +280,9 @@ class i_o():
         except ZeroDivisionError:
             print("Can't calculate the accuracy, the output list is empty")
 
-        print("The accuracy is:",accuracy,"%")
-        timerSum = 0
-        for x in self.timers:
-            timerSum += float(x)
-        print("The average time is:",timerSum/len(self.timers))
+        print("The accuracy is:",round(accuracy,2),"%")
+        print("The average time is:",round(timerSum/len(self.timers),2)," sec")
 
-        self.fOutput.write("The accuracy is: "+str(accuracy)+'\n')
-        self.fTimer.write("The average time is: "+str(timerSum/len(self.timers))+'\n')
 ######################################################
 #                WRITE THE OUTPUT  
 ######################################################
@@ -289,8 +300,12 @@ class i_o():
         if(len(self.tests) == 0 or len(self.output) == 0):
             raise Exception("The lenght of tests or output is zero, wrong")
         
-        print("Identify the writer of ",self.testsPrint[0])
-        print("The expected output is: ",self.expected[len(self.output)-1])
+        print("Processing the image ->",self.testsPrint[0])
+        if(len(self.expected) >= len(self.output)):
+            print("The expected output is: ",self.expected[len(self.output)-1])
+        else:
+            print("The expected output is: ",None)
+        
         print("The ectual output is: ",self.output[len(self.output)-1])
         print("=========================================================")
 
@@ -317,7 +332,7 @@ if __name__ == "__main__":
     if(n == -1):
         n = 10000
 
-    obj = i_o(n)
+    obj = main(n)
     obj.readFiles()
 
     

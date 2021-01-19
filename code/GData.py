@@ -97,18 +97,22 @@ class gData():
                 shutil.rmtree(os.path.join(path, i))
             os.mkdir(os.path.join(path, i))
 
+
+            copyList = self.dic[i].copy()
             imageCount = 0
-            for j in self.dic[i]:
+            while imageCount < 2:
                 imageCount+=1
+
+                randImage = random.randint(0,len(copyList)-1)
+                imageName = copyList.pop(randImage)+".png"
+                copyfile(os.path.join(self.inputPath,imageName),os.path.join(path,i,imageName))
+
                 if(writerCount == randomTest and not takeATest):
-                    randImage = random.randint(2,len(self.dic[i])-1) # random image from third image to last image
-                    copyfile(os.path.join(self.inputPath,self.dic[i][randImage]+".png"),os.path.join(path,self.dic[i][randImage]+".png"))
+                    randImage = random.randint(0,len(copyList)-1)
+                    imageName = copyList.pop(randImage)+".png"
+                    copyfile(os.path.join(self.inputPath,imageName),os.path.join(path,imageName))
                     self.expectedFile.write(i+'\n') 
                     takeATest = 1
-                if(imageCount > 2):
-                    break
-                copyfile(os.path.join(self.inputPath,j+".png"),os.path.join(path,i,j+".png"))
-
         
 
 ######################################################
@@ -117,7 +121,7 @@ class gData():
 if __name__ == "__main__":
     os.chdir("../")
 
-    n = input("The number of tests (Can't be more than 100 tests): ")
+    n = input("The number of tests (It's better not to exceed 1000): ")
 
     obj = gData(int(n))
     obj.formTxt()
