@@ -170,8 +170,8 @@ class main():
 #                START THE PIPELINE                            
 ######################################################
     def startPipeline(self):
+
         Start = datetime.datetime.now()
-        
 
         thread1 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][0], self.writers[0],)) 
         thread2 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][1], self.writers[0],))  
@@ -229,7 +229,8 @@ class main():
         # Xtrain.append((featuresTest[0]+featuresTest[1]) / 2) 
         # Xtrain.append((featuresTest[2]+featuresTest[3]) / 2) 
         # Xtrain.append((featuresTest[4]+featuresTest[5]) / 2) 
-        knn = KNeighborsClassifier(n_neighbors=5,weights="distance") 
+        n=min(len(self.yTrain),5)
+        knn = KNeighborsClassifier(n_neighbors=n,weights="distance") 
 
         # SVM
         # knn = svm.SVC(kernel='linear',gamma="auto") 
