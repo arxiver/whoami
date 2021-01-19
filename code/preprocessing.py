@@ -10,46 +10,46 @@ import numpy as np
 
 
 
-#takes image and return cropped image without noise and cropped binary image without noise
+#takes image and return cropped image without noise and lines
 def preprocessing(img):
 
     #crop noise on borders
-    img= img[int(img.shape[0]*0.12):int(img.shape[0]*0.88),int(img.shape[1]*0.04):int(img.shape[0]*0.96)]
-
-
-
+    img= img[int(img.shape[0]*0.12):int(img.shape[0]*0.70),int(img.shape[1]*0.04):int(img.shape[0]*0.96)]
+    
+    
+    
     #blur to remove noise
     img =  cv2.medianBlur(img,5)
         
     #black and white 
     binaryImg = ((img > 200)*255).astype('uint8')   
-    # cv2.imwrite('binaryImg2.png',binaryImg)
-
-    #remove noise by anding imgblur and binaryImg
+    
+    
+    
+    #remove noise by anding img and binaryImg
     img[binaryImg==255]=255
-
+    
     #get contours
     contours,_ = cv2.findContours(binaryImg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+    
     
     Ymin = 0
     Ymax = img.shape[0]
     
     Xmin= img.shape[1]
     Xmax= 0
-    newContours=[]
-    
-    #get two lines
+    #get two lines to get handwriting only and get Xmin ,Xmax remove white borders on sides
     for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
+            if x==0:
+                continue
             if w < img.shape[1]*0.5 or h >img.shape[0]*0.02 :
-                if x <= img.shape[1]*0.5 :  
-                    if x>0:
+                if x <= img.shape[1]*0.5:  
                         Xmin = min(Xmin,int(x))
     
                 else:
                     Xmax = max(Xmax,int(x+w))
-                newContours.append(contour)
+    
             else:
                 if y <= img.shape[0]*0.5:         
                     Ymin = max(Ymin,int(y+h))
@@ -59,7 +59,8 @@ def preprocessing(img):
     Ymin2 = Ymax
     Ymax2 = Ymin
     
-    #remove white borders
+    
+    #get Ymin and Ymax to remove white borders top and bottom
     for contour in contours:
             x, y, w, h = cv2.boundingRect(contour)
             if y <= (Ymax-Ymin)*0.5: 
@@ -69,16 +70,38 @@ def preprocessing(img):
                 if  y+h > Ymax2 and y+h < Ymax:
                     Ymax2 = y+h
     
-    #crop both
+    #crop img and binaryImg
     if(Ymin2<Ymax2):
         img = img[Ymin2:Ymax2,Xmin:Xmax]
         binaryImg=binaryImg[Ymin2:Ymax2,Xmin:Xmax]
     elif(Ymin<Ymax):
         img = img[Ymin:Ymax,Xmin:Xmax]
         binaryImg=binaryImg[Ymin:Ymax,Xmin:Xmax]
+    
+    binaryImgCopy=np.copy(binaryImg)
+    #erode to make lines -> black boxes
+    kernel = np.ones((1,int(binaryImg.shape[1]*0.08)),np.uint8)
+    binaryImg =cv2.erode(binaryImg,kernel,iterations = 1)
+    
+    #crop borders to get right Contours
+    binaryImg[:,0:10]=255
+    binaryImg[0:10,:]=255
+    binaryImg[:,binaryImg.shape[1]-10:]=255
+    binaryImg[binaryImg.shape[0]-10:,:]=255
+    
+    contours,_ = cv2.findContours(binaryImg, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    
+    #image for every line
+    lines=[]
+    for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            if x==0 or h < img.shape[0]*0.01  or  w < img.shape[1]*0.2 :
+                continue
+            lines.append(img[y:y+h,x:x+w])
+            lines.append(binaryImgCopy[y:y+h,x:x+w])
 
-    #return cropped img,cropped binaryImg  
-    return img,binaryImg
+    #return cropped img,lines 
+    return img,lines
 
 
 
