@@ -13,11 +13,12 @@ class gData():
         self.numOfTests=n
         self.form = {}
         self.dic = {}
-        self.outputPath = "/mnt/sda9/sda5/data"
+        self.outputPath = "/mnt/sda9/sda5/data1"
         self.inputPath = "Dataset"
         self.formText = "forms.txt"
         self.expectedPath = "output/expected.txt"
         self.currentTest = 0
+        
 
         self.expectedFile = open(self.expectedPath, 'w')
 
@@ -46,32 +47,79 @@ class gData():
                         self.form[writer] = [image]
 
         file_in.close()
+
+
+        # remove all writer has less than 3 images
+        for i in list(self.form):
+            if(len(self.form[i]) < 3):
+                del self.form[i]
+
+
+        # pick a random writer
+        # test = random.choice(list(self.form.keys()))
+        # print(test)
+
+
+        # Print all writer and their images
+        # count = 0
+        # for i in self.form:
+        #     if(len(self.form[i]) > 2):
+        #         count+=1
+        #     print(i,"=> ", end="")
+        #     for j in self.form[i]:
+        #         print(j," ",end=" ")
+        #     print()
+        #     print("==================")
+        # print(count)
+
+        
 ######################################################
 #               CREATE THE ARCHITECTURE                            
 ######################################################
     def createStructure(self): 
         
-        if(self.numOfTests == self.currentTest):
-            return True
+        # Generate all compination
+        ##############################
+        # if(self.numOfTests == self.currentTest):
+        #     return True
 
-        if(len(self.dic) == 3):
+        # if(len(self.dic) == 3):
+        #     self.write()
+        #     self.currentTest+=1
+        #     return False
+
+        # for i in self.form:
+        #     if i not in self.dic and len(self.form[i]) > 2:
+        #         self.dic[i] = self.form[i]
+        #         if self.createStructure() is True:
+        #             return True
+
+        #         lastElement = None
+        #         for x in self.dic:
+        #             lastElement = x
+        #         del self.dic[lastElement]
+
+        # return False
+        #####################################################
+
+
+        for i in range(0,self.numOfTests):
+            w1 = random.choice(list(self.form.keys()))
+
+            w2 = random.choice(list(self.form.keys()))
+            while(w2 == w1):
+                w2 = random.choice(list(self.form.keys()))
+
+            w3 = random.choice(list(self.form.keys()))
+            while(w3 == w2 or w3 == w1):
+                w3 = random.choice(list(self.form.keys()))
+
+            self.dic[w1] = self.form[w1]
+            self.dic[w2] = self.form[w2]
+            self.dic[w3] = self.form[w3]
             self.write()
             self.currentTest+=1
-            return False
-
-        for i in self.form:
-            if i not in self.dic and len(self.form[i]) > 2:
-                self.dic[i] = self.form[i]
-                if self.createStructure() is True:
-                    return True
-
-                lastElement = None
-                for x in self.dic:
-                    lastElement = x
-                del self.dic[lastElement]
-
-        return False
-
+            self.dic.clear()
 
 ######################################################
 #                       WRITE                            
@@ -84,7 +132,8 @@ class gData():
         elif(self.currentTest < 1000):
             path = self.outputPath+"/"+str(self.currentTest)
         else:
-            raise Exception("The limit of tests is 1000")
+            path = self.outputPath+"/"+str(self.currentTest)
+            # raise Exception("The limit of tests is 1000")
 
 
         randomTest = random.randint(0,2)

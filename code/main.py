@@ -33,7 +33,7 @@ class main():
         self.timers = []
 
         # pathes
-        self.inputPath = "/mnt/sda9/sda5/data"
+        self.inputPath = "/mnt/sda9/sda5/data1"
         self.outputPath = "output/results.txt"
         self.timerPath = "output/time.txt"
         self.expectedPath = "output/expected.txt"
@@ -229,7 +229,7 @@ class main():
         # Xtrain.append((featuresTest[0]+featuresTest[1]) / 2) 
         # Xtrain.append((featuresTest[2]+featuresTest[3]) / 2) 
         # Xtrain.append((featuresTest[4]+featuresTest[5]) / 2) 
-        knn = KNeighborsClassifier(n_neighbors=7,weights="distance") 
+        knn = KNeighborsClassifier(n_neighbors=5,weights="distance") 
 
         # SVM
         # knn = svm.SVC(kernel='linear',gamma="auto") 
@@ -307,6 +307,9 @@ class main():
             print("The expected output is: ",None)
         
         print("The ectual output is: ",self.output[len(self.output)-1])
+
+        if(self.expected[len(self.output)-1] != self.output[len(self.output)-1]):
+            print("Error")
         print("=========================================================")
 
 ######################################################
@@ -334,5 +337,30 @@ if __name__ == "__main__":
 
     obj = main(n)
     obj.readFiles()
+
+
+
+    # TEST
+
+    # img = cv2.imread("/mnt/sda9/sda5/data/085/016/a01-091.png", 0)
+    # print(img)
+    # preProcessing, lines = preprocessing(img)
+
+
+    # cv2.imwrite("original_expected.png", img)
+    # count = 0
+    # for i in lines:
+    #     cv2.imwrite("img_expected"+str(count)+".png",i)
+    #     count+=1
+
+
+
+# Processing the image -> /mnt/sda9/sda5/data/085/b04-195.png
+# The expected output is:  114
+# The ectual output is:  16
+# =========================================================
+# Processing the image -> /mnt/sda9/sda5/data/086/b05-045.png
+# The expected output is:  117
+# The ectual output is:  16
 
     
