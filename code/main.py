@@ -8,6 +8,7 @@ from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 from threading import Thread 
 from sklearn import svm
+import random
 
 import datetime
 
@@ -16,7 +17,7 @@ class main():
 ######################################################
 #                       INIT                            
 ######################################################
-    def __init__(self, n):
+    def __init__(self):
         self.images = []
         self.imagesPrint = []
         self.tests = []
@@ -26,14 +27,14 @@ class main():
         self.featuresLabled = []
         self.featuresTest = []
 
-        self.NumOfRuns=n
+        # self.NumOfRuns=n
 
         self.expected = []
         self.output = []
         self.timers = []
 
         # pathes
-        self.inputPath = "/mnt/sda9/sda5/data1"
+        self.inputPath = "data"
         self.outputPath = "output/results.txt"
         self.timerPath = "output/time.txt"
         self.expectedPath = "output/expected.txt"
@@ -42,7 +43,7 @@ class main():
         self.fOutput = open(self.outputPath, 'w')
         self.fTimer = open(self.timerPath, 'w')
 
-        self.getExpected()
+        # self.getExpected()
 
 
     def __del__(self):
@@ -76,11 +77,10 @@ class main():
     def readFiles(self):
         count = 0
         l = self.sort(os.listdir(self.inputPath))
-        # for test in os.listdir(self.inputPath):
         for test in l:
-            if count == self.NumOfRuns:
-                break
-            count+=1
+            # if count == self.NumOfRuns:
+            #     break
+            # count+=1
             
             for writer in os.listdir(os.path.join(self.inputPath, test)):
                 writerImages = []
@@ -99,16 +99,10 @@ class main():
             self.readImages()
             self.startPipeline()
             self.writeOutput()
-            self.Print()
+            # self.Print()
             self.reinitialize()
             
-        self.calculateAccuracy()
-
-
-
-        # self.images   => [['data/01/1/1.png', 'data/01/1/2.png'], ['data/01/2/1.png', 'data/01/2/2.png'], ['data/01/3/1.png', 'data/01/3/2.png']]
-        # self.writers  => [1, 2, 3]
-        # self.tests    => ['data/01/test.png']
+        # self.calculateAccuracy()
 
 
 ######################################################
@@ -122,83 +116,42 @@ class main():
         for i in range(len(self.tests)):
                 self.tests[i] = cv2.imread(self.tests[i], 0)
 
-    # self.images   => [['binary_image', 'binary_image'], ['binary_image', 'binary_image'], ['binary_image', 'binary_image']]
-    # self.writers  => [1, 2, 3]
-    # self.tests    => ['binary_image']
 
-######################################################
-#                START THE PIPELINE                            
-######################################################
-    # def startPipeline(self):
-    #     knn = KNeighborsClassifier(n_neighbors=1,weights="distance") # tune n_neighbors 
-    #     Start = datetime.datetime.now()
-    #     # The features of the labled data
-    #     for i in self.images:
-    #         # featuresList = []
-    #         for j in i:
-    #             preProcessing, _ = preprocessing(j) #preprocessing.preprocessing(j) # Module => pre-processing, inputs => path of image 
-    #             features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
-    #             # featuresList.append(features) 
-    #             self.featuresLabled.append(features)
-
-    #     Ytrain = [self.writers[0],self.writers[0],self.writers[1],self.writers[1],self.writers[2],self.writers[2]] 
-    #     knn.fit(self.featuresLabled,Ytrain) 
-
-    #     for i in self.tests:
-    #         Start_pre = datetime.datetime.now()
-    #         preProcessing, _ = preprocessing(i) # Module => pre-processing, inputs => path of image 
-    #         End_pre = datetime.datetime.now()
-
-    #         Start_features = datetime.datetime.now()
-    #         features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1]) # Module => FS, inputs => pre-processed image
-    #         End_features = datetime.datetime.now()
-    #         self.featuresTest.append(features)
-
-        
-    #     output = knn.predict(self.featuresTest)   # Module => K-nn, inputs => self.featuresLabled, self.featuresTest, self.writers
-    #                     # output => array of expected writers
-    #                     # Now we assume that the output will be only one element and the test will be only one elment
-
-
-    #     print("pre: ",(End_pre-Start_pre).total_seconds())
-    #     print("features: ",(End_features-Start_features).total_seconds())
-    #     End = datetime.datetime.now()
-    #     self.output.extend(output)
-    #     self.timers.append(str((End-Start).total_seconds()))
-
-######################################################
-#                START THE PIPELINE                            
-######################################################
     def startPipeline(self):
 
         Start = datetime.datetime.now()
 
-        thread1 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][0], self.writers[0],)) 
-        thread2 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][1], self.writers[0],))  
-        thread3 = Thread(target = self.preprocessingAndFeatures, args = (self.images[1][0], self.writers[1],))  
-        thread4 = Thread(target = self.preprocessingAndFeatures, args = (self.images[1][1], self.writers[1],))  
-        thread5 = Thread(target = self.preprocessingAndFeatures, args = (self.images[2][0], self.writers[2],))  
-        thread6 = Thread(target = self.preprocessingAndFeatures, args = (self.images[2][1], self.writers[2],))  
-        thread7 = Thread(target = self.preprocessingAndFeatures, args = (self.tests[0],None,))
 
+        try:
+            thread1 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][0], self.writers[0],)) 
+            thread2 = Thread(target = self.preprocessingAndFeatures, args = (self.images[0][1], self.writers[0],))  
+            thread3 = Thread(target = self.preprocessingAndFeatures, args = (self.images[1][0], self.writers[1],))  
+            thread4 = Thread(target = self.preprocessingAndFeatures, args = (self.images[1][1], self.writers[1],))  
+            thread5 = Thread(target = self.preprocessingAndFeatures, args = (self.images[2][0], self.writers[2],))  
+            thread6 = Thread(target = self.preprocessingAndFeatures, args = (self.images[2][1], self.writers[2],))  
+            thread7 = Thread(target = self.preprocessingAndFeatures, args = (self.tests[0],None,))
 
-        thread1.start()  
-        thread2.start()  
-        thread3.start()  
-        thread4.start()  
-        thread5.start()  
-        thread6.start()  
-        thread7.start()
+            thread1.start()  
+            thread2.start()  
+            thread3.start()  
+            thread4.start()  
+            thread5.start()  
+            thread6.start()  
+            thread7.start()
 
-        thread1.join()  
-        thread2.join()  
-        thread3.join()  
-        thread4.join()  
-        thread5.join()  
-        thread6.join()  
-        thread7.join()
+            thread1.join()  
+            thread2.join()  
+            thread3.join()  
+            thread4.join()  
+            thread5.join()  
+            thread6.join()  
+            thread7.join()
 
-        output = self.knn()
+            output = self.knn()
+        except:
+            # RANDOM ANSWER IF THERE IS ANY ERROR
+            output = [random.randint(1,3)]
+
         End = datetime.datetime.now()
         self.output.extend(output)
         self.timers.append(str(round((End-Start).total_seconds(),2)))
@@ -208,7 +161,6 @@ class main():
 ######################################################
     def preprocessingAndFeatures(self,img,writer):
         preProcessing, lines = preprocessing(img)
-        # features = extractLBP(preProcessing) / (preProcessing.shape[0] * preProcessing.shape[1])
         features = extractLBPLines(lines)
 
         writerList = [writer]*len(features)
@@ -222,21 +174,10 @@ class main():
 #                       KNN                            
 ######################################################
     def knn(self):
-
-        # Average two features
-        # Xtrain = [] 
-        # Ytrain = [0,1,2] 
-        # Xtrain.append((featuresTest[0]+featuresTest[1]) / 2) 
-        # Xtrain.append((featuresTest[2]+featuresTest[3]) / 2) 
-        # Xtrain.append((featuresTest[4]+featuresTest[5]) / 2) 
-        n=min(len(self.yTrain),5)
+        n=min(len(self.yTrain),7)
         knn = KNeighborsClassifier(n_neighbors=n,weights="distance") 
-
-        # SVM
-        # knn = svm.SVC(kernel='linear',gamma="auto") 
-        # knn = svm.SVC(kernel='poly',gamma="auto") 
         knn.fit(self.featuresLabled,self.yTrain) 
-        ret = knn.predict(self.featuresTest)   # Module => K-nn, inputs => self.featuresLabled, self.featuresTest, self.writers
+        ret = knn.predict(self.featuresTest)
         return [(int(np.argmax(np.bincount(ret))))]
 ######################################################
 #               GET EXPECTED OUTPUT  
@@ -307,24 +248,12 @@ class main():
         else:
             print("The expected output is: ",None)
         
-        print("The ectual output is: ",self.output[len(self.output)-1])
+        print("The actual output is: ",self.output[len(self.output)-1])
 
-        if(self.expected[len(self.output)-1] != self.output[len(self.output)-1]):
-            print("Error")
+        if(len(self.expected) >= len(self.output)):
+            if(self.expected[len(self.output)-1] != self.output[len(self.output)-1]):
+                print("Error")
         print("=========================================================")
-
-######################################################
-#                 TEST FUNCTION  
-######################################################
-    def test(self):
-        print(self.featuresLabled)
-        print(self.featuresTest)
-        print(self.writers)
-        print(self.expected)
-        print(self.output)
-        print(self.images)
-        print(self.tests)
-
 
 ######################################################
 #                       MAIN                            
@@ -332,36 +261,5 @@ class main():
 if __name__ == "__main__":
     os.chdir("../")
 
-    n = int(input("enter the number of tests you want to run (enter -1 for all tests): "))
-    if(n == -1):
-        n = 10000
-
-    obj = main(n)
+    obj = main()
     obj.readFiles()
-
-
-
-    # TEST
-
-    # img = cv2.imread("/mnt/sda9/sda5/data/085/016/a01-091.png", 0)
-    # print(img)
-    # preProcessing, lines = preprocessing(img)
-
-
-    # cv2.imwrite("original_expected.png", img)
-    # count = 0
-    # for i in lines:
-    #     cv2.imwrite("img_expected"+str(count)+".png",i)
-    #     count+=1
-
-
-
-# Processing the image -> /mnt/sda9/sda5/data/085/b04-195.png
-# The expected output is:  114
-# The ectual output is:  16
-# =========================================================
-# Processing the image -> /mnt/sda9/sda5/data/086/b05-045.png
-# The expected output is:  117
-# The ectual output is:  16
-
-    

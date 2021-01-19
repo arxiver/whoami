@@ -56,11 +56,13 @@ class gData():
 
 
         # pick a random writer
+        
         # test = random.choice(list(self.form.keys()))
         # print(test)
 
 
         # Print all writer and their images
+
         # count = 0
         # for i in self.form:
         #     if(len(self.form[i]) > 2):
