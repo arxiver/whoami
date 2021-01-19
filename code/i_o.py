@@ -230,7 +230,8 @@ class i_o():
         # Xtrain.append((featuresTest[0]+featuresTest[1]) / 2) 
         # Xtrain.append((featuresTest[2]+featuresTest[3]) / 2) 
         # Xtrain.append((featuresTest[4]+featuresTest[5]) / 2) 
-        knn = KNeighborsClassifier(n_neighbors=7,weights="distance") 
+        n=min(len(self.yTrain),5)
+        knn = KNeighborsClassifier(n_neighbors=n,weights="distance") 
 
         # SVM
         # knn = svm.SVC(kernel='linear',gamma="auto") 

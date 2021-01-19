@@ -14,7 +14,7 @@ import numpy as np
 def preprocessing(img):
 
     #crop noise on borders
-    img= img[int(img.shape[0]*0.12):int(img.shape[0]*0.88),int(img.shape[1]*0.04):int(img.shape[0]*0.96)]
+    img= img[int(img.shape[0]*0.12):int(img.shape[0]*0.75),int(img.shape[1]*0.04):int(img.shape[0]*0.96)]
     
     
     
@@ -78,7 +78,7 @@ def preprocessing(img):
         img = img[Ymin:Ymax,Xmin:Xmax]
         binaryImg=binaryImg[Ymin:Ymax,Xmin:Xmax]
     
-    
+    binaryImgCopy=np.copy(binaryImg)
     #erode to make lines -> black boxes
     kernel = np.ones((1,int(binaryImg.shape[1]*0.08)),np.uint8)
     binaryImg =cv2.erode(binaryImg,kernel,iterations = 1)
@@ -98,6 +98,7 @@ def preprocessing(img):
             if x==0 or h < img.shape[0]*0.01  or  w < img.shape[1]*0.2 :
                 continue
             lines.append(img[y:y+h,x:x+w])
+            lines.append(binaryImgCopy[y:y+h,x:x+w])
 
     #return cropped img,lines 
     return img,lines
